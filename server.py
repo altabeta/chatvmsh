@@ -45,3 +45,4 @@ while True:
     user_f.send(dataS)
     user_s.send(data)
 sock.close()
+print('Socket closed')
