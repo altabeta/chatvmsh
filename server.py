@@ -1,5 +1,5 @@
 import socket
-from tools_RSA import *
+import struct
 from RSA import *
 
 
@@ -7,7 +7,6 @@ def encodeRSA(open_exponent, txt, n):
     txt = replacing_words(str(txt))
     res = fastpow(txt, open_exponent, module=n)
     return res
-
 
 def decodeRSA(text, closed_exponent, n):
     res = fastpow(text, closed_exponent, module=n)
@@ -17,11 +16,11 @@ def decodeRSA(text, closed_exponent, n):
 def user_setup():
     conn, addr = sock.accept()
     print('Connected with' + addr[0] + ':' + str(addr[1]))
-    open_exponent = int(conn.recv(1024))
-    n = int(conn.recv(1024))
+    open_exponent = struct.unpack('q', conn.recv(1024))[0]
+    n = struct.unpack('q', conn.recv(1024))[0]
     keys = RSA()
-    conn.send(keys.open_exponent)  # client gets info to decode messages from server
-    conn.send(keys.n)
+    conn.send(struct.pack('q', keys.open_exponent))  # client gets info to decode messages from server
+    conn.send(struct.pack('q', keys.n))
     return open_exponent, n, keys.closed_exponent, keys.n, conn
 
 
@@ -33,6 +32,8 @@ sock.listen(2)
 print('Socket listening')
 oef, nf, clf, ncl_f, user_f = user_setup()
 oes, ns, cls, ncl_s, user_s = user_setup()
+'''
+will be fixed when keys sending problems are solved
 while True:
     data = user_f.recv(1024)
     dataS = user_s.recv(1024)
@@ -46,3 +47,4 @@ while True:
     user_s.send(data)
 sock.close()
 print('Socket closed')
+'''

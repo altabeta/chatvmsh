@@ -1,5 +1,6 @@
 import socket
 from RSA import *
+import struct
 
 def encodeRSA(open_exponent, txt, n):
     txt = replacing_words(str(txt))
@@ -17,10 +18,12 @@ print('Socket created')
 sock.connect(('', 9000))
 print('Socket connected with server')
 keys = RSA()
-sock.send(keys.open_exponent)
-sock.send(keys.n)
-open_exp_s = sock.recv(1024)
-n_s = sock.recv(1024)
+sock.send(struct.pack('q', keys.open_exponent))
+sock.send(struct.pack('q', keys.n))
+open_exp_s = struct.unpack('q', sock.recv(1024))
+n_s = struct.unpack('q', sock.recv(1024))
+''' 
+will be fixed when keys sending problems are solved
 print('Keys sent and received. Start sending data')
 data = ""
 while True:
@@ -32,4 +35,5 @@ while True:
     dataR = encodeRSA(open_exp_s, dataR, n_s)
     print(dataR)
 sock.close()
-print('Socket closed')
+print('Socket closed') 
+'''
