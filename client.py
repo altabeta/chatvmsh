@@ -2,6 +2,7 @@ import socket
 from RSA import *
 
 def encodeRSA(txt, open_exponent, n):
+    print(txt)
     txt = replacing_words(str(txt))
     res = fastpow(txt, open_exponent, module=n)
     return res
@@ -28,8 +29,8 @@ data = ""
 
 
 while True:
-    input(data)
-    if data == '~exit':
+    data = input()
+    if data == 'exi':
         exitmarker = 'User exited'
         exitmarker = encodeRSA(data, open_exp_s, n_s)
         sock.send(exitmarker.to_bytes(4096, 'big'))

@@ -49,13 +49,13 @@ print('User 2 connected, keys sent and received')
 while True:
     data = int.from_bytes(conn_f.recv(4096), 'big')
     datas = int.from_bytes(conn_s.recv(4096), 'big')
-    if not data and datas:
+    if data or datas == 'exi':
         break
     data = decodeRSA(data, keysf.closed_exponent, keysf.n)
     datas = decodeRSA(datas, keyss.closed_exponent, keyss.n)
-    data = encodeRSA(datas, oef, nf)
-    datas = encodeRSA(data, oes, ns)
-    conn_f.send((data).to_bytes(4096, 'big'))
-    conn_s.send((datas).to_bytes(4096, 'big'))
+    datatf = encodeRSA(datas, oef, nf)
+    datats = encodeRSA(data, oes, ns)
+    conn_f.send((datatf).to_bytes(4096, 'big'))
+    conn_s.send((datats).to_bytes(4096, 'big'))
 sock.close()
 print('Socket closed')
