@@ -26,36 +26,44 @@ print('Socket listening')
 
 conn_f, addr_f = sock.accept()
 print('Connected with' + addr_f[0] + ':' + str(addr_f[1]))
-oef = int.from_bytes(conn_f.recv(1024), 'big')
-nf = int.from_bytes(conn_f.recv(1024), 'big')  # receiving keys from client
+oef = int.from_bytes(conn_f.recv(4096), 'big')
+nf = int.from_bytes(conn_f.recv(4096), 'big')  # receiving keys from client
 keysf = RSA()
-conn_f.send((keysf.open_exponent).to_bytes(1024, 'big'))  # sending keys to client
-conn_f.send((keysf.n).to_bytes(1024, 'big'))
+conn_f.send((keysf.open_exponent).to_bytes(4096, 'big'))  # sending keys to client
+conn_f.send((keysf.n).to_bytes(4096, 'big'))
 print('User 1 connected, keys sent and received')
 
 # Receiving first connection, creating RSA keys for sending, receiving keys to decode (client 2)
 
 conn_s, addr_s = sock.accept()
 print('Connected with' + addr_s[0] + ':' + str(addr_s[1]))
-oes = int.from_bytes(conn_s.recv(1024), 'big')
-ns = int.from_bytes(conn_s.recv(1024), 'big') # receiving keys from client
+oes = int.from_bytes(conn_s.recv(4096), 'big')
+ns = int.from_bytes(conn_s.recv(4096), 'big') # receiving keys from client
 keyss = RSA()
-conn_s.send((keyss.open_exponent).to_bytes(1024, 'big'))  # sending keys to client
-conn_s.send((keyss.n).to_bytes(1024, 'big'))
+conn_s.send((keyss.open_exponent).to_bytes(4096, 'big'))  # sending keys to client
+conn_s.send((keyss.n).to_bytes(4096, 'big'))
 print('User 2 connected, keys sent and received')
 
 # Start of info exchange
 
 while True:
+    print('Start of cycle')
     data = int.from_bytes(conn_f.recv(4096), 'big')
-    datas = int.from_bytes(conn_s.recv(4096), 'big')
-    if data or datas == 'exi':
-        break
     data = decodeRSA(data, keysf.closed_exponent, keysf.n)
+    print('Recieved first message:' + ' ' + str(data))
+    if data == 'User exited':
+        print('1st data unreachable')
+        break
+    datas = int.from_bytes(conn_s.recv(4096), 'big')
     datas = decodeRSA(datas, keyss.closed_exponent, keyss.n)
+    print('Recieved second message:' + ' ' + str(datas))
+    if datas == 'User exited':
+        print('2nd data unreachable')
+        break
     datatf = encodeRSA(datas, oef, nf)
     datats = encodeRSA(data, oes, ns)
     conn_f.send((datatf).to_bytes(4096, 'big'))
     conn_s.send((datats).to_bytes(4096, 'big'))
+    print('Data sent')
 sock.close()
 print('Socket closed')

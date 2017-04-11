@@ -5,8 +5,8 @@ from tools_RSA import *
 
 class RSA:
     def __init__(self):
-        self.p = prime_gen(512)
-        self.q = prime_gen(512)
+        self.p = prime_gen(64)
+        self.q = prime_gen(64)
         self.n = self.q * self.p
         self.euler_n = (self.q - 1) * (self.p - 1)
         self.open_exponent = random.randint(2, self.euler_n - 1)
