@@ -15,30 +15,30 @@ def decodeRSA(text, closed_exponent, n):
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket created')
-sock.connect(('', 9000))
+sock.connect(('', 9290))
 print('Socket connected with server')
 keys = RSA()
-sock.send((keys.open_exponent).to_bytes(4096, 'big'))
-sock.send((keys.n).to_bytes(4096, 'big'))
-open_exp_s = int.from_bytes(sock.recv(4096), 'big')
-n_s = int.from_bytes(sock.recv(4096), 'big')
+print('oe' + str(keys.open_exponent))
+print('n' + str(keys.n))
+sock.send(str((keys.open_exponent)).encode('utf-8'))
+sock.send((str(keys.n)).encode('utf-8'))
+open_exp_s = int(sock.recv(4096))
+n_s = int(sock.recv(4096))
 print('Keys sent and received. Start sending messages')
 
-
 data = ""
-
 
 while True:
     data = input()
     if data == 'exi':
         exitmarker = 'User exited'
         exitmarker = encodeRSA(data, open_exp_s, n_s)
-        sock.send(exitmarker.to_bytes(4096, 'big'))
+        sock.send(str(exitmarker).encode('utf-8'))
         print('Exiting chat.')
         break
     data = encodeRSA(data, open_exp_s, n_s)
-    sock.send(data.to_bytes(4096, 'big'))
-    datar = int.from_bytes(sock.recv(4096), 'big')
+    sock.send(str(data).encode('utf-8'))
+    datar = int(sock.recv(4096))
     datar = decodeRSA(datar, keys.closed_exponent, keys.n)
     if datar == 'User exited':
         print('Another user exited. Closing chat')
